@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProductController;
 
 /*
@@ -31,5 +32,14 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         Route::get('/show/{id}', [ProductController::class, 'show'])->name('admin.product.show');
         Route::post('/store', [ProductController::class, 'store'])->name('admin.product.store');
         Route::delete('/delete', [ProductController::class, 'delete'])->name('admin.product.delete');
+    });
+    
+    Route::group(['prefix' => 'invoice'], function () {
+        Route::get('/', [InvoiceController::class, 'index'])->name('admin.invoice.index');
+        Route::get('/data', [InvoiceController::class, 'data'])->name('admin.invoice.data');
+        Route::get('/create', [InvoiceController::class, 'create'])->name('admin.invoice.create');
+        Route::get('/show/{id}', [InvoiceController::class, 'show'])->name('admin.invoice.show');
+        Route::post('/store', [InvoiceController::class, 'store'])->name('admin.invoice.store');
+        Route::delete('/delete', [InvoiceController::class, 'delete'])->name('admin.invoice.delete');
     });
 });

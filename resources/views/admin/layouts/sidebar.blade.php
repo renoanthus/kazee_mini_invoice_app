@@ -22,7 +22,13 @@
             <li>
                 <a href="{{route('admin.product.index')}}">
                     <i class="fas fa-boxes"></i>
-                    <span> Product </span>
+                    <span> Products </span>
+                </a>
+            </li>
+            <li>
+                <a href="{{route('admin.invoice.index')}}">
+                    <i class="fas fa-money-bill"></i>
+                    <span> Invoices </span>
                 </a>
             </li>
         </ul>

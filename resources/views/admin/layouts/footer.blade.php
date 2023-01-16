@@ -10,11 +10,15 @@
 <script src="{{asset('adminto/dist/assets/libs/sweetalert2/sweetalert2.min.js')}}"></script>
 <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
 @include('sweetalert::alert', ['cdn' => "https://cdn.jsdelivr.net/npm/sweetalert2@9"])
+
 <script>
   $.ajaxSetup({
     headers: {
       'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
     }
   });
+  function rupiah(nominal) {
+    return 'Rp '+parseInt(nominal).toLocaleString('id')
+  }
 </script>
 @yield('js')

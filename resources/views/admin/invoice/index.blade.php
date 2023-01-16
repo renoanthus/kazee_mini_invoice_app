@@ -1,41 +1,14 @@
 @extends('admin.layouts.main')
 
 @section('title')
-<title>Product </title>
+<title>Invoice </title>
 @endsection
 @section('css')
-<style>
-  input[type="file"] {
-    display: block;
-  }
-  .imageThumb {
-    max-height: 125px;
-    max-width: 125px;
-    border: 2px solid;
-    padding: 1px;
-    cursor: pointer;
-  }
-  .pip {
-    display: inline-block;
-    margin: 10px 10px 0 0;
-  }
-  .remove {
-    display: block;
-    background: #444;
-    border: 1px solid black;
-    color: white;
-    text-align: center;
-    cursor: pointer;
-  }
-  .remove:hover {
-    background: white;
-    color: black;
-  }
-</style>
+<link href="{{asset('adminto/dist/assets/libs/bootstrap-daterangepicker/daterangepicker.css')}}" rel="stylesheet">
 
 @endsection
 @section('caption')
-<h4 class="page-title-main">Product</h4>
+<h4 class="page-title-main">Invoice</h4>
 @endsection
 
 @section('content')
@@ -47,19 +20,19 @@
         <form id="formFilter">
           <div class="row shadow-sm mb-2">
             <div class="form-group col-md-6">
-              <label>Nama Produk :</label>
-              <input type="text" name="nama_filter" id="nama_filter" class="form-control">
+              <label>Kode Invoice :</label>
+              <input type="text" name="kode_filter" id="kode_filter" class="form-control">
             </div>
             <div class="form-group col-md-6">
-              <label>Kode Produk :</label>
-              <input type="text" name="kode_filter" id="kode_filter" class="form-control">
+              <label>Tanggal :</label>
+              <input type="text" name="tanggal_filter" id="tanggal_filter" class="form-control">
             </div>
           </div>
         </form>
         <div class="row head_table">
           <div class="col-md-2">
-            <button type="button" id="btn-tambah"
-              class="btn btn-block btn-primary btn-sm waves-effect waves-light mb-2">Tambah</button>
+            <a href="{{ route('admin.invoice.create') }}" target="_blank"
+              class="btn btn-block btn-primary btn-sm waves-effect waves-light mb-2">Tambah</a>
           </div>
         </div>
         <div class="table-responsive">
@@ -155,34 +128,6 @@
 <script>
   $(document).ready(function () {
     $('.select').select2()
-    //masking
-    $('.money').mask('000.000.000.000.000', {reverse: true});
-
-    //show input file
-    if (window.File && window.FileList && window.FileReader) {
-      $("#foto_produk").on("change", function(e) {
-        var files = e.target.files,
-          filesLength = files.length;
-        for (var i = 0; i < filesLength; i++) {
-          var f = files[i]
-          var fileReader = new FileReader();
-          fileReader.onload = (function(e) {
-            var file = e.target;
-            $("<span class=\"pip\">" +
-              "<img class=\"imageThumb\" src=\"" + e.target.result + "\" title=\"" + file.name + "\"/>" +
-              "<br/><span class=\"remove\">Remove image</span>" +
-              "</span>").insertAfter("#foto_produk");
-            $(".remove").click(function(){
-              $(this).parent(".pip").remove();
-            });
-
-          });
-          fileReader.readAsDataURL(f);
-        }
-      });
-    } else {
-      alert("Your browser doesn't support to File API")
-    }
 
     //data table
     $(function() {
@@ -195,7 +140,7 @@
         "searching": false,
         "autoWidth": false,
         "ajax": {
-          url: "{{ route('admin.product.data')}}",
+          url: "{{ route('admin.invoice.data')}}",
           data: function (d) {
             d.nama_filter = sessionStorage.nama_filter;
             d.kode_filter = sessionStorage.kode_filter;
@@ -243,28 +188,19 @@
         ]
       });
       function clearSession(){
-        sessionStorage.removeItem('nama_filter');
         sessionStorage.removeItem('kode_filter');
+        sessionStorage.removeItem('harga_filter');
       }
-      $('#nama_filter').on('focusout', function (e) {
-        sessionStorage.setItem('nama_filter', this.value);
-        oTable1.draw();
-        e.preventDefault();
-      });
-      $('#kode_filter').on('change', function (e) {
+      $('#kode_filter').on('focusout', function (e) {
         sessionStorage.setItem('kode_filter', this.value);
         oTable1.draw();
         e.preventDefault();
       });
-    });
-
-    $('#btn-tambah').click(function (e) {
-      e.preventDefault();
-      $("#modalProduct").modal("show")
-      $('#foto_produk').nextAll().remove();
-      $('#foto_produk').val('');
-      $("#id").val("")
-      $("#modal1Title").val("Tambah Produk")
+      $('#tanggal_filter').on('change', function (e) {
+        sessionStorage.setItem('tanggal_filter', this.value);
+        oTable1.draw();
+        e.preventDefault();
+      });
     });
 
     $('body').on('click', '.btn-ubah', function(e){
@@ -276,7 +212,7 @@
       var id = $(this).data('id')
       $.ajax({
         type: "get",
-        url: "{{ route('admin.product.index') }}/show/"+id,
+        url: "{{ route('admin.invoice.index') }}/show/"+id,
         success: function (data) {
           $('#id').val(data.id);
           $('#nama_produk').val(data.nama_produk);
@@ -318,7 +254,7 @@
       }).then((result) => {
         if (result.value) {
           $.ajax({
-            url: "{{ route('admin.product.delete')}}",
+            url: "{{ route('admin.invoice.delete')}}",
             type: "delete",
             dataType: "JSON",
             data : {
@@ -343,7 +279,7 @@
     $('body').on('submit', '#formProduct', function(e){
       e.preventDefault();
       $.ajax({
-          url: "{{ route('admin.product.store') }}",
+          url: "{{ route('admin.invoice.store') }}",
           type: "POST",
           data: new FormData(this),
           dataType: 'JSON',
