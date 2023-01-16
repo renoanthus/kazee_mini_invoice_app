@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,4 +24,12 @@ Auth::routes();
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::get('/home', [HomeController::class, 'index'])->name('admin.home');
+    
+    Route::group(['prefix' => 'product'], function () {
+        Route::get('/', [ProductController::class, 'index'])->name('admin.product.index');
+        Route::get('/data', [ProductController::class, 'data'])->name('admin.product.data');
+        Route::get('/show/{id}', [ProductController::class, 'show'])->name('admin.product.show');
+        Route::post('/store', [ProductController::class, 'store'])->name('admin.product.store');
+        Route::delete('/delete', [ProductController::class, 'delete'])->name('admin.product.delete');
+    });
 });

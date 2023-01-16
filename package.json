@@ -12,6 +12,7 @@
         "vite": "^4.0.0"
     },
     "dependencies": {
+        "@fancyapps/ui": "^4.0.31",
         "sweetalert2": "^11.7.0"
     }
 }

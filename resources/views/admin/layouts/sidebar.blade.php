@@ -19,6 +19,12 @@
                     <span> Dashboard </span>
                 </a>
             </li>
+            <li>
+                <a href="{{route('admin.product.index')}}">
+                    <i class="fas fa-boxes"></i>
+                    <span> Product </span>
+                </a>
+            </li>
         </ul>
 
     </div>
