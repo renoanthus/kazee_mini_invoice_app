@@ -9,6 +9,8 @@ class Invoice extends Model
 {
     use HasFactory;
     protected $table = 'invoices';
+    protected $primaryKey = 'id_invoice';
+    public $incrementing = false;
 
     protected $fillable = [
         'id_invoice',
@@ -17,7 +19,7 @@ class Invoice extends Model
 
     public function products()
     {
-        return $this->belongsToMany(Product::class,'invoice_products','id_invoice','product_id');
+        return $this->belongsToMany(Product::class,'invoice_products','id_invoice','product_id')->withPivot('jumlah','harga','total_harga');
     }
 
 }

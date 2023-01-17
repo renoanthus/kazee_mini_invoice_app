@@ -20,18 +20,21 @@
         <form id="formFilter">
           <div class="row shadow-sm mb-2">
             <div class="form-group col-md-6">
-              <label>Kode Invoice :</label>
+              <label class="col-form-label">Kode Invoice :</label>
               <input type="text" name="kode_filter" id="kode_filter" class="form-control">
             </div>
             <div class="form-group col-md-6">
-              <label>Tanggal :</label>
-              <input type="text" name="tanggal_filter" id="tanggal_filter" class="form-control">
+              <label for="" class="col-form-label">Filter Tanggal :</label>
+              <div id="reportrange" class="form-control">
+                  <i class="fa fa-calendar"></i>
+                  <span></span>
+              </div>
             </div>
           </div>
         </form>
         <div class="row head_table">
           <div class="col-md-2">
-            <a href="{{ route('admin.invoice.create') }}" target="_blank"
+            <a href="{{ route('admin.invoice.create') }}"
               class="btn btn-block btn-primary btn-sm waves-effect waves-light mb-2">Tambah</a>
           </div>
         </div>
@@ -41,12 +44,10 @@
               <tr>
                 <th>No</th>
                 <th>Aksi</th>
-                <th>Nama</th>
-                <th>Kode</th>
-                <th>Harga</th>
-                <th>Sisa Stok</th>
-                <th>Foto</th>
-                <th>Keterangan Produk</th>
+                <th>No Invoice</th>
+                <th>Tanggal Invoice</th>
+                <th>Jumlah Produk</th>
+                <th>Total Harga</th>
               </tr>
             </thead>
           </table>
@@ -125,9 +126,60 @@
 </script>
 <script src="{{asset('adminto/dist/assets/libs/datatables/responsive.bootstrap4.min.js')}}">
 </script>
+
+<script src="{{asset('adminto/dist/assets/libs/moment/moment.js')}}"></script>
+<script src="{{asset('adminto/dist')}}/assets/libs/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+<script src="{{asset('adminto/dist')}}/assets/libs/bootstrap-daterangepicker/daterangepicker.js"></script>
 <script>
   $(document).ready(function () {
     $('.select').select2()
+
+    
+
+    $("#reportrange span").html(moment().format("MMM D, YYYY") + " - " + moment().format("MMM D, YYYY")), $("#reportrange").daterangepicker({
+        format: "MMM/DD/YYYY",
+        startDate: moment(),
+        endDate: moment(),
+        minDate: "01/01/2021",
+        maxDate: "12/31/2023",
+        dateLimit: {
+            days: 365
+        },
+        showDropdowns: !0,
+        showWeekNumbers: !0,
+        timePicker: !1,
+        timePickerIncrement: 1,
+        timePicker12Hour: !0,
+        ranges: {
+            Today: [moment(), moment()],
+            Yesterday: [moment().subtract(1, "days"), moment().subtract(1, "days")],
+            "Last 7 Days": [moment().subtract(6, "days"), moment()],
+            "Last 30 Days": [moment().subtract(29, "days"), moment()],
+            "This Month": [moment().startOf("month"), moment().endOf("month")],
+            "Last Month": [moment().subtract(1, "month").startOf("month"), moment().endOf("month")],
+            "Last 2 Month": [moment().subtract(2, "month").startOf("month"), moment().endOf("month")],
+            "Last 3 Month": [moment().subtract(3, "month").startOf("month"), moment().endOf("month")],
+            "Day Of Last Year": [moment().subtract(365, "days"), moment()],
+        },
+        opens: "center",
+        drops: "down",
+        buttonClasses: ["btn", "btn-sm"],
+        applyClass: "btn-success",
+        cancelClass: "btn-secondary",
+        separator: " to ",
+        locale: {
+            applyLabel: "Submit",
+            cancelLabel: "Cancel",
+            fromLabel: "From",
+            toLabel: "To",
+            customRangeLabel: "Custom",
+            daysOfWeek: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+            monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+            firstDay: 1
+        }
+    }, function (e, t, a) {
+        $("#reportrange span").html(e.format("MMM D, YYYY") + " - " + t.format("MMM D, YYYY"))
+    })
 
     //data table
     $(function() {
@@ -142,13 +194,13 @@
         "ajax": {
           url: "{{ route('admin.invoice.data')}}",
           data: function (d) {
-            d.nama_filter = sessionStorage.nama_filter;
             d.kode_filter = sessionStorage.kode_filter;
+            d.tanggal_filter = sessionStorage.tanggal_filter;
           }
         },
         "columns": [
           {
-            data: 'id',
+            data: 'id_invoice',
             searchable: false,
             width:'10px',
             fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
@@ -159,45 +211,37 @@
             data: 'aksi',
             orderable: false,
             searchable: false,
-            width:'120px',
+            width:'140px',
           },
           {
-            data: 'nama_produk',
+            data: 'id_invoice',
             defaultContent: '-',
           },
           {
-            data: 'kode_produk',
+            data: 'tanggal_invoice',
             defaultContent: '-',
           },
           {
-            data: 'harga_produk',
+            data: 'products_count',
             defaultContent: '-',
           },
           {
-            data: 'sisa_stok',
-            defaultContent: '-',
-          },
-          {
-            data: 'foto_poduk',
-            defaultContent: '-',
-          },
-          {
-            data: 'keterangan_produk',
+            data: 'total_harga',
             defaultContent: '-',
           },
         ]
       });
       function clearSession(){
         sessionStorage.removeItem('kode_filter');
-        sessionStorage.removeItem('harga_filter');
+        sessionStorage.removeItem('tanggal_filter');
       }
       $('#kode_filter').on('focusout', function (e) {
         sessionStorage.setItem('kode_filter', this.value);
         oTable1.draw();
         e.preventDefault();
       });
-      $('#tanggal_filter').on('change', function (e) {
-        sessionStorage.setItem('tanggal_filter', this.value);
+      $('#reportrange span').on('DOMSubtreeModified', function (e) {
+        sessionStorage.setItem('tanggal_filter', $("#reportrange span").html());
         oTable1.draw();
         e.preventDefault();
       });
@@ -269,7 +313,7 @@
                 oTable1.ajax.reload();
               }, 1000);
             }else{
-              Swal.fire("Gaga;", response.message, "error");
+              Swal.fire("Gagal", response.message, "error");
             }
           });
         }

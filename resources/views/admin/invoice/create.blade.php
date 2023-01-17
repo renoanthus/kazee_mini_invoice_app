@@ -21,11 +21,12 @@
         <div class="row head_table">
           <h4 class="mt-0 header-title">Form Invoice</h4>
         </div>
-        <form method="post" id="formAdd" enctype="multipart/form-data">
+        <form method="post" id="formAdd" enctype="multipart/form-data" action="{{ route('admin.invoice.store') }}">
+          @csrf
           <div class="form-group row mt-3">
               <label class="col-form-label">Tanggal</label>
               <div class="input-group">
-                <input type="text" class="form-control datepicker" name="tanggal" placeholder="dd/mm/yyyy" id="datepicker-autoclose">
+                <input type="text" class="form-control datepicker" name="tanggal" value="{{ $hari_ini }}" placeholder="dd/mm/yyyy" id="datepicker-autoclose">
                 <div class="input-group-append">
                   <span class="input-group-text"><i class="ti-calendar"></i></span>
                 </div>
@@ -34,11 +35,10 @@
           <div class="row mb-2">
             <div class="col-md-2 ml-auto">
               <button type="button" class="btn btn-block btn-primary tombol_tambah"><i class="mdi mdi-plus"></i>Tambah
-                Form</button>
+                Produk</button>
             </div>
           </div>
           <div class="table-responsive">
-            @csrf
             <table class="table table-bordered">
               <thead>
                 <tr>
@@ -51,37 +51,78 @@
                 </tr>
               </thead>
               <tbody class="tbody_data">
-                <tr class="tambah_data0">
-                  <td>
-                    <select class="form-control select2 produk_id reset" data-key="0" name="produk_id[]" required="">
-                      <option value="">Pilih Produk</option>
-                      @foreach ($produk as $element)
-                      <option value="{{$element->id}}">{{$element->nama_produk}}</option>
-                      @endforeach
-                    </select>
-                  </td>
-                  <td class="foto_produk0 reset">
-                    <a data-fancybox="grup" data-src="{{ asset('images/img_placeholder.jpeg') }}">
-                      <img style="max-width:100px;max-height:67px" src="{{ asset('images/img_placeholder.jpeg') }}" />
-                    </a>
-                  </td>
-                  <td>
-                    <input type="text" name="harga_produk[]" readonly parsley-trigger="change" required=""
-                      placeholder="Harga Produk" class="form-control money reset harga_produk0">
-                  </td>
-                  <td>
-                    <input type="text" name="jumlah_produk[]" parsley-trigger="change" required=""
-                      placeholder="Jumlah Produk" value="0" class="form-control money reset jumlah_produk0">
-                  </td>
-                  <td>
-                    <input type="text" name="total_harga[]" readonly parsley-trigger="change" required=""
-                      placeholder="Total Harga Produk" class="form-control money reset total_harga0">
-                  </td>
-                  <td>
-                    <button type="button" disabled="" class="btn btn-block btn-danger btn-sm hapus tombol_hapus"><i
-                        class="mdi mdi-trash-can-outline"></i></button>
-                  </td>
-                </tr>
+                @if ($produk_invoice)
+                  <input type="hidden" name="id_invoice" value="{{ $invoice->id_invoice }}">
+                    @foreach ($produk_invoice as $key => $item)
+                      <tr class="tambah_data{{ $key }}">
+                        <td>
+                          <select class="form-control select2 produk_id reset" data-key="{{ $key }}" name="produk_id[]" required="">
+                            <option value="">Pilih Produk</option>
+                            @foreach ($produk as $element)
+                            <option value="{{$element->id}}" {{ $element->id == $item->id ? 'selected' : '' }}>{{$element->nama_produk}}</option>
+                            @endforeach
+                          </select>
+                        </td>
+                        <td class="foto_produk{{ $key }} reset">
+                          <a data-fancybox="grup" data-src="{{ asset('images/img_placeholder.jpeg') }}">
+                            <img style="max-width:100px;max-height:67px" src="{{ asset($item->foto_produk ?? 'images/img_placeholder.jpeg') }}" />
+                          </a>
+                        </td>
+                        <td>
+                          <input type="text" readonly parsley-trigger="change" required=""
+                            placeholder="Harga Produk" class="form-control money reset harga_produk{{ $key }}">
+                        </td>
+                        <td>
+                          <input type="text" name="jumlah_produk[]" parsley-trigger="change"  required=""
+                            placeholder="Jumlah Produk" value="{{ $item->pivot?->jumlah ?? 1 }}" min="1" class="form-control money reset jumlah_produk{{ $key }}">
+                        </td>
+                        <td>
+                          <input type="text" readonly parsley-trigger="change" required=""
+                            placeholder="Total Harga Produk" class="form-control money reset total_harga{{ $key }}">
+                        </td>
+                        <td>
+                          @if ($key == 0)
+                            <button type="button" disabled="" class="btn btn-block btn-danger btn-sm hapus tombol_hapus"><i
+                              class="mdi mdi-trash-can-outline"></i></button>
+                          @else
+                            <button type="button" class="btn btn-block btn-danger btn-sm btn_hapus" required="" data-key="{{ $key }}"><i class="mdi mdi-trash-can-outline"></i></button>
+                          @endif
+                        </td>
+                      </tr>
+                    @endforeach
+                @else
+                  <tr class="tambah_data0">
+                    <td>
+                      <select class="form-control select2 produk_id reset" data-key="0" name="produk_id[]" required="">
+                        <option value="">Pilih Produk</option>
+                        @foreach ($produk as $element)
+                        <option value="{{$element->id}}">{{$element->nama_produk}}</option>
+                        @endforeach
+                      </select>
+                    </td>
+                    <td class="foto_produk0 reset">
+                      <a data-fancybox="grup" data-src="{{ asset('images/img_placeholder.jpeg') }}">
+                        <img style="max-width:100px;max-height:67px" src="{{ asset('images/img_placeholder.jpeg') }}" />
+                      </a>
+                    </td>
+                    <td>
+                      <input type="text" readonly parsley-trigger="change" required=""
+                        placeholder="Harga Produk" class="form-control money reset harga_produk0">
+                    </td>
+                    <td>
+                      <input type="text" name="jumlah_produk[]" parsley-trigger="change" required=""
+                        placeholder="Jumlah Produk" value="1" min="1" class="form-control money reset jumlah_produk0">
+                    </td>
+                    <td>
+                      <input type="text" readonly parsley-trigger="change" required=""
+                        placeholder="Total Harga Produk" class="form-control money reset total_harga0">
+                    </td>
+                    <td>
+                      <button type="button" disabled="" class="btn btn-block btn-danger btn-sm hapus tombol_hapus"><i
+                          class="mdi mdi-trash-can-outline"></i></button>
+                    </td>
+                  </tr>
+                @endif
               </tbody>
             </table>
             <a href="{{ route('admin.invoice.index') }}" class="btn btn-secondary waves-effect"
@@ -102,22 +143,21 @@
 <!-- Validation js (Parsleyjs) -->
 <script src="{{asset('adminto/dist/')}}/assets/libs/parsleyjs/parsley.min.js"></script>
 <script src="{{asset('adminto/dist/')}}/assets/js/pages/form-validation.init.js"></script>
-<script type="text/javascript">
-  $("#tanggal").datepicker();
-</script>
 <script>
   $(document).ready(function () {
-    $('.select').select2()
+    $('.select2').select2()
     $('.money').mask('000.000.000.000.000', {
       reverse: true,
-      min:0,
-      allowZero:true,
+      min:1,
+      allowZero:false,
+      negative:false,
     });
     $(".datepicker").datepicker({
       format : 'dd/mm/yyyy',
     });
-    var key_form = 1;
+    var key_form = {{ $produk_invoice ? count($produk_invoice) : 1 }};
     function total_produk(selector,jumlah,harga) {
+      jumlah = jumlah.replace('.','').replace('.','').replace('.','')
       $(`.total_harga${selector}`).val(rupiah(parseInt(jumlah) * parseInt(harga)))
     }
     $('body').on('change', '.produk_id', function(e){
@@ -157,6 +197,7 @@
         $(`.harga_produk${key}`).val('')
       }
     });
+    $('.produk_id').trigger('change');
 
     $('body').on('click', '.btn_hapus', function() {
       var key = $(this).data('key')
@@ -186,7 +227,7 @@
           </td>
           <td>
             <input type="text" name="jumlah_produk[]" parsley-trigger="change" required=""
-              placeholder="Jumlah Produk" value="0" class="form-control money reset jumlah_produk${key_form}">
+              placeholder="Jumlah Produk" value="1" min="1" class="form-control money reset jumlah_produk${key_form}">
           </td>
           <td>
             <input type="text" name="total_harga[]" readonly parsley-trigger="change" required=""

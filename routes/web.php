@@ -39,6 +39,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         Route::get('/data', [InvoiceController::class, 'data'])->name('admin.invoice.data');
         Route::get('/create', [InvoiceController::class, 'create'])->name('admin.invoice.create');
         Route::get('/show/{id}', [InvoiceController::class, 'show'])->name('admin.invoice.show');
+        Route::get('/export/{id}', [InvoiceController::class, 'export'])->name('admin.invoice.export');
         Route::post('/store', [InvoiceController::class, 'store'])->name('admin.invoice.store');
         Route::delete('/delete', [InvoiceController::class, 'delete'])->name('admin.invoice.delete');
     });
